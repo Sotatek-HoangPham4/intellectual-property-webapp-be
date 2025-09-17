@@ -3,6 +3,8 @@ import {
   UnauthorizedException,
   ConflictException,
   Inject,
+  NotFoundException,
+  HttpStatus,
 } from '@nestjs/common';
 import { v4 as uuidv4 } from 'uuid';
 import { UserEntity } from '../../../core/domain/entities/user.entity';
@@ -12,6 +14,8 @@ import { ConfigService } from '@nestjs/config';
 import type { IUserRepository } from '@/core/domain/repositories/user.repository';
 import { AuthResponseDto } from './dto/auth.dto';
 import { RegisterResDto } from './dto/register.dto';
+import { TokensDto } from './dto/tokens.dto';
+import { UserDataDto } from '../user/dto/user.dto';
 
 @Injectable()
 export class AuthService {
@@ -27,6 +31,14 @@ export class AuthService {
     const hashedRt = await this.bcryptService.hash(tokens.refreshToken);
     await this.userRepo.setCurrentRefreshToken(userId, hashedRt);
     return tokens;
+  }
+
+  async getUserById(userId: string): Promise<UserEntity> {
+    const user = await this.userRepo.findById(userId);
+    if (!user) {
+      throw new NotFoundException(`User with id ${userId} not found`);
+    }
+    return user;
   }
 
   async register(
@@ -62,35 +74,39 @@ export class AuthService {
       await this.bcryptService.hash(tokens.refreshToken),
     );
 
-    return {
-      ...tokens,
-      user: {
-        id: created.id,
-        name: created.name,
-        email: created.email,
-        provider: 'local',
-        providerId: null,
-        avatar: null,
-      },
-    };
+    const userInfo = new UserDataDto(
+      created,
+      new TokensDto(tokens.accessToken, tokens.refreshToken),
+    );
+
+    return new RegisterResDto(userInfo, HttpStatus.CREATED);
   }
 
   async login(email: string, password: string) {
     const user = await this.userRepo.findByEmail(email);
-    if (!user) throw new UnauthorizedException('Invalid credentials');
+    if (!user) throw new UnauthorizedException('User does not exist');
 
     const pwMatches = await this.bcryptService.compare(
       password,
       user.password!,
     );
-    if (!pwMatches) throw new UnauthorizedException('Invalid credentials');
+    if (!pwMatches)
+      throw new UnauthorizedException('Username or password incorrect');
 
     const tokens = await this.getTokens(user.id, user.email, user.role);
     const hashedRt = await this.bcryptService.hash(tokens.refreshToken);
     await this.userRepo.setCurrentRefreshToken(user.id, hashedRt);
+
     return {
       ...tokens,
-      user: { id: user.id, name: user.name, email: user.email },
+      user: {
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        provider: user.provider,
+        providerId: user.providerId,
+        avatar: user.avatar,
+      },
     };
   }
 

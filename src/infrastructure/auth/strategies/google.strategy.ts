@@ -49,6 +49,7 @@ export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
       name: profile.displayName ?? '',
       avatar,
       accessToken,
+      refreshToken,
     };
   }
 }

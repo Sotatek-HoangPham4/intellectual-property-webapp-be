@@ -1,24 +1,18 @@
-import { IsEmail, IsNotEmpty } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import { UserDataDto } from '../../user/dto/user.dto';
 
-export class LoginDto {
-  @ApiProperty({
-    example: 'alice@example.com',
-    description: 'Email address of the user',
-  })
-  @IsEmail()
-  email: string;
+// export class ApiResponseDto<T> {
+//   @ApiProperty({ example: 'SUCCESS' })
+//   status: number;
 
-  @ApiProperty({
-    example: 'StrongPassword123',
-    description: 'Password for the user account',
-  })
-  @IsNotEmpty()
-  password: string;
-}
+//   @ApiProperty({ example: 'Operation completed successfully' })
+//   message: string;
 
-export class RegisterResDto {
+//   @ApiProperty({ required: false })
+//   data?: T;
+// }
+
+export class ApiResponseDto {
   @ApiProperty({ example: 201 })
   status: number;
 

@@ -1,5 +1,7 @@
 import { IsEmail, IsNotEmpty, MinLength } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
+import { TokensDto } from './tokens.dto';
+import { UserDataDto } from '../../user/dto/user.dto';
 
 export class RegisterReqDto {
   @ApiProperty({
@@ -26,50 +28,23 @@ export class RegisterReqDto {
   password: string;
 }
 
-export class UserInfoDto {
-  @ApiProperty({ example: 'd10fff8c-fa0f-47b1-9031-8d2e7e0ebbbf' })
-  id: string;
-
-  @ApiProperty({ example: 'Admin' })
-  name: string;
-
-  @ApiProperty({ example: 'admin@example.com' })
-  email: string;
-
-  @ApiProperty({ example: 'local', description: 'Authentication provider' })
-  provider: string;
-
-  @ApiProperty({
-    example: 'd10fff8c-fa0f-47b1-9031-8d2e7e0ebbbf',
-    description: 'Provider-specific ID',
-  })
-  providerId: string | null;
-
-  @ApiProperty({
-    example: null,
-    description: 'Avatar URL (optional)',
-    nullable: true,
-    required: false,
-  })
-  avatar?: string | null;
-}
-
 export class RegisterResDto {
-  @ApiProperty({
-    example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...',
-    description: 'JWT access token',
-  })
-  accessToken: string;
+  @ApiProperty({ example: 201 })
+  status: number;
 
-  @ApiProperty({
-    example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...',
-    description: 'JWT refresh token',
-  })
-  refreshToken: string;
+  @ApiProperty({ example: 'User successfully registered' })
+  message: string;
 
-  @ApiProperty({
-    description: 'Registered user information',
-    type: () => UserInfoDto,
-  })
-  user: UserInfoDto;
+  @ApiProperty({ type: UserDataDto })
+  data: UserDataDto | null;
+
+  constructor(
+    data: UserDataDto | null,
+    status = 201,
+    message = 'User successfully registered',
+  ) {
+    this.status = status;
+    this.message = message;
+    this.data = data;
+  }
 }

@@ -1,28 +1,24 @@
 import { ApiProperty } from '@nestjs/swagger';
-
-export class AuthUser {
-  @ApiProperty({ example: '8be63d01-8e51-428c-957d-59e72fa79b0c' })
-  id: string;
-
-  @ApiProperty({ example: 'Alice' })
-  name: string;
-
-  @ApiProperty({ example: 'alice@example.com' })
-  email: string;
-}
+import { UserDataDto } from '../../user/dto/user.dto';
 
 export class AuthResponseDto {
+  @ApiProperty({
+    example: 'a7cd930d-3efd-4174-ba7d-c48eee78c150',
+    description: 'Provider unique user ID',
+  })
+  id?: string;
+
   @ApiProperty({
     example: 'google',
     description: 'OAuth provider (google, facebook, etc.)',
   })
-  provider: string;
+  provider?: string;
 
   @ApiProperty({
     example: '1234567890',
     description: 'Provider unique user ID',
   })
-  providerId: string;
+  providerId?: string;
 
   @ApiProperty({
     example: 'john.doe@example.com',
@@ -43,5 +39,11 @@ export class AuthResponseDto {
     example: 'ya29.A0ARrdaM...',
     description: 'Google OAuth access token',
   })
-  accessToken: string;
+  accessToken?: string;
+
+  @ApiProperty({
+    example: 'ya29.A0ARrdaM...',
+    description: 'Google OAuth access token',
+  })
+  refreshToken?: string;
 }
