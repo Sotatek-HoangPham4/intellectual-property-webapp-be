@@ -1,0 +1,543 @@
+{
+	"info": {
+		"_postman_id": "57e1478f-42f6-459f-8f2e-21116717ecf6",
+		"name": "Testing App",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "48133800"
+	},
+	"item": [
+		{
+			"name": "Authentication",
+			"item": [
+				{
+					"name": "OAuth / SSO (Google,…)",
+					"item": [
+						{
+							"name": "Google Login OAuth",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "https://accounts.google.com/o/oauth2/v2/auth?client_id={{GOOGLE_CLIENT_ID}}&redirect_uri={{GOOGLE_REDIRECT_URI}}&response_type=code&scope=email profile openid&access_type=offline",
+									"protocol": "https",
+									"host": [
+										"accounts",
+										"google",
+										"com"
+									],
+									"path": [
+										"o",
+										"oauth2",
+										"v2",
+										"auth"
+									],
+									"query": [
+										{
+											"key": "client_id",
+											"value": "{{GOOGLE_CLIENT_ID}}"
+										},
+										{
+											"key": "redirect_uri",
+											"value": "{{GOOGLE_REDIRECT_URI}}"
+										},
+										{
+											"key": "response_type",
+											"value": "code"
+										},
+										{
+											"key": "scope",
+											"value": "email profile openid"
+										},
+										{
+											"key": "access_type",
+											"value": "offline"
+										}
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Registration & Login",
+					"item": [
+						{
+							"name": "Register",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"name\": \"Admin\",\n  \"email\": \"admin@example.com\",\n  \"password\": \"password123\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseURL}}/api/v1/auth/register",
+									"host": [
+										"{{baseURL}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"auth",
+										"register"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Login",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"email\": \"admin03@example.com\",\n  \"password\": \"password123\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseURL}}/api/v1/auth/login",
+									"host": [
+										"{{baseURL}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"auth",
+										"login"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Logout",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{authToken}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseURL}}/api/v1/auth/logout",
+									"host": [
+										"{{baseURL}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"auth",
+										"logout"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Password Management",
+					"item": [
+						{
+							"name": "Forgot Password",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"email\": \"admin@example.com\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseURL}}/api/v1/auth/forgot-password",
+									"host": [
+										"{{baseURL}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"auth",
+										"forgot-password"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Reset Password",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"token\": \"4a38153d-8400-4705-9ea3-59075b62bc86\",\n  \"newPassword\": \"NewStrongPassword123\"\n}\n",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseURL}}/api/v1/auth/reset-password",
+									"host": [
+										"{{baseURL}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"auth",
+										"reset-password"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Change Password",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{authToken}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "PATCH",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"currentPassword\": \"NewStrongPassword123\",\n  \"newPassword\": \"password123\"\n}\n",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseURL}}/api/v1/auth/change-password",
+									"host": [
+										"{{baseURL}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"auth",
+										"change-password"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Token Management",
+					"item": [
+						{
+							"name": "Refresh Token",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"refreshToken\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxNTY1NDZlZS1lMDc0LTQ5ZmQtYjRhMi1hOGYzODE3ZmUzYjQiLCJlbWFpbCI6ImFkbWluQGV4YW1wbGUuY29tIiwicm9sZSI6InVzZXIiLCJpYXQiOjE3NTgyNzQ1NDIsImV4cCI6MTc1ODI3NTE0Nn0.ufta6puEDj2JNklxQfVV3E9DzR2RgI4H4t2z_7rhXXU\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseURL}}/api/v1/auth/token/refresh",
+									"host": [
+										"{{baseURL}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"auth",
+										"token",
+										"refresh"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Revoke Token",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{authToken}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"refreshToken\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxNTY1NDZlZS1lMDc0LTQ5ZmQtYjRhMi1hOGYzODE3ZmUzYjQiLCJpYXQiOjE3NTgyODA3MTcsImV4cCI6MTc1ODg4NTUxN30.29Qb3AiLIBRNe1VIzleJ-jUX6bu42ThISgGkvlyyhHk\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseURL}}/api/v1/auth/token/revoke",
+									"host": [
+										"{{baseURL}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"auth",
+										"token",
+										"revoke"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Two-Factor Authentication (2FA / MFA)",
+					"item": [
+						{
+							"name": "2FA Setup",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{authToken}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [],
+								"url": {
+									"raw": "{{baseURL}}/api/v1/auth/2fa/setup",
+									"host": [
+										"{{baseURL}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"auth",
+										"2fa",
+										"setup"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "2FA Verify",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{authToken}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"code\": \"906993\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseURL}}/api/v1/auth/2fa/verify",
+									"host": [
+										"{{baseURL}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"auth",
+										"2fa",
+										"verify"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "2FA Disable",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{authToken}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"code\": \"906993\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseURL}}/api/v1/auth/2fa/verify",
+									"host": [
+										"{{baseURL}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"auth",
+										"2fa",
+										"verify"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				}
+			],
+			"description": "**1\\. User Registration & Login**\n\n### **Endpoints cơ bản**\n\n| Method | Path | Mục đích | Payload | Response |\n| --- | --- | --- | --- | --- |\n| POST | `/auth/register` | Đăng ký user mới | `{ name, email, password }` | `{ status, message, data: { user, tokens } }` |\n| POST | `/auth/login` | Đăng nhập bằng email/password | `{ email, password }` | `{ status, message, data: { user, tokens } }` |\n| POST | `/auth/logout` | Logout, xoá refresh token server | `{ userId, refreshToken }` | `{ status, message }` |\n\n---\n\n## **2\\. OAuth / SSO (Google, Facebook, Microsoft, GitHub…)**\n\n### **Endpoints**\n\n| Method | Path | Mục đích |\n| --- | --- | --- |\n| GET | `/auth/google` | Redirect user tới Google OAuth login |\n| GET | `/auth/google/redirect` | Callback Google, trả về token và user info |\n| GET | `/auth/facebook` | Redirect tới Facebook login |\n| GET | `/auth/facebook/redirect` | Callback Facebook, trả về token và user info |\n| GET | `/auth/microsoft` | Redirect tới Microsoft login |\n| GET | `/auth/microsoft/redirect` | Callback Microsoft |\n\n**Payload/Response:** sau callback trả về `UserDataDto + tokens` hoặc `RegisterResDto` gói sẵn status/message.\n\n---\n\n## **3\\. Token Management**\n\n| Method | Path | Mục đích | Payload | Response |\n| --- | --- | --- | --- | --- |\n| POST | `/auth/refresh` | Lấy JWT access token mới bằng refresh token | `{ userId, refreshToken }` | `{ status, message, data: { accessToken, refreshToken } }` |\n| POST | `/auth/revoke` | Revoke refresh token (logout tất cả thiết bị) | `{ userId }` | `{ status, message }` |\n\n---\n\n## **4\\. Password Management**\n\n| Method | Path | Mục đích |\n| --- | --- | --- |\n| POST | `/auth/forgot-password` | Gửi email reset password |\n| POST | `/auth/reset-password` | Reset password sau khi có token từ email |\n| PATCH | `/auth/change-password` | Thay đổi password khi đang đăng nhập |\n\n---\n\n## **5\\. Two-Factor Authentication (2FA / MFA)**\n\n| Method | Path | Mục đích |\n| --- | --- | --- |\n| POST | `/auth/2fa/setup` | Khởi tạo 2FA cho user (QR code / secret) |\n| POST | `/auth/2fa/verify` | Verify mã 2FA (TOTP) |\n| POST | `/auth/2fa/disable` | Tắt 2FA |\n\n> &lt;p &gt;2FA có thể yêu cầu trên login OAuth hoặc login thông thường.&lt;/p&gt; \n  \n\n---\n\n## **6\\. Optional Security Features**\n\n- **Device Management**\n    \n    - GET `/auth/sessions` → list active sessions / devices\n        \n    - DELETE `/auth/sessions/:sessionId` → revoke specific session\n        \n- **Email Verification / Account Activation**\n    \n    - POST `/auth/verify-email` → verify code từ email\n        \n- **Social Account Linking / Unlinking**\n    \n    - POST `/auth/link/google` → link Google account\n        \n    - POST `/auth/unlink/google` → unlink Google account\n        \n\n---\n\n### **JWT và Refresh Token**\n\n- **Access Token:** ngắn hạn (\\~15 phút), chứa thông tin `userId, role, permissions`.\n    \n- **Refresh Token:** dài hạn (\\~7-30 ngày), lưu hashed trong DB.\n    \n- **2FA kiểm tra:** nếu bật, login thành công → yêu cầu verify TOTP trước khi issue access token."
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "baseURL",
+			"value": ""
+		},
+		{
+			"key": "authToken",
+			"value": ""
+		},
+		{
+			"key": "GOOGLE_CLIENT_ID",
+			"value": "",
+			"type": "default"
+		},
+		{
+			"key": "GOOGLE_REDIRECT_URI",
+			"value": "",
+			"type": "default"
+		}
+	]
+}

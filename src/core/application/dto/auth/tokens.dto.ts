@@ -1,20 +1,38 @@
 import { ApiProperty } from '@nestjs/swagger';
 
 export class TokensDto {
-  @ApiProperty({
-    example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...',
-    description: 'JWT access token',
-  })
-  accessToken: string;
+  @ApiProperty({ description: 'JWT Access Token' })
+  accessToken!: string;
+
+  @ApiProperty({ description: 'JWT Refresh Token' })
+  refreshToken!: string;
+
+  constructor(accessToken?: string, refreshToken?: string) {
+    if (accessToken) this.accessToken = accessToken;
+    if (refreshToken) this.refreshToken = refreshToken;
+  }
+}
+
+export class RevokeTokenRequestDto {
+  @ApiProperty({ description: 'The refresh token to revoke', required: false })
+  refreshToken?: string;
 
   @ApiProperty({
-    example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...',
-    description: 'JWT refresh token',
+    description: 'Revoke all tokens for this user',
+    required: false,
   })
-  refreshToken: string;
+  all?: boolean;
+}
 
-  constructor(accessToken: string, refreshToken: string) {
-    this.accessToken = accessToken;
-    this.refreshToken = refreshToken;
+export class RevokeTokenResponseDto {
+  @ApiProperty({ description: 'Operation success status' })
+  success!: boolean;
+
+  @ApiProperty({ description: 'Number of revoked tokens' })
+  revokedCount!: number;
+
+  constructor(success: boolean, revokedCount: number) {
+    this.success = success;
+    this.revokedCount = revokedCount;
   }
 }
