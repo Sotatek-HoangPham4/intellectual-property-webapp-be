@@ -1,10 +1,12 @@
 // infrastructure/database/user.repository.impl.ts
+import * as bcrypt from 'bcrypt';
 import { Injectable } from '@nestjs/common';
-import { Repository } from 'typeorm';
+import { MoreThan, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import type { IUserRepository } from '@/core/domain/repositories/user.repository';
 import { UserEntity } from '@/core/domain/entities/user.entity';
 import { UserOrmEntity } from './entities/user.orm-entity';
+import { hashToken } from '@/shared/utils/hash-token';
 
 @Injectable()
 export class UserRepositoryImpl implements IUserRepository {
@@ -55,6 +57,41 @@ export class UserRepositoryImpl implements IUserRepository {
   ): Promise<UserEntity | null> {
     return await this.repo.findOne({
       where: { provider, providerId },
+    });
+  }
+
+  async setResetPasswordToken(
+    userId: string,
+    hashedToken: string,
+    expiresInMinutes: number,
+  ) {
+    await this.repo.update(userId, {
+      resetPasswordToken: hashedToken,
+      resetTokenExpiresAt: new Date(Date.now() + expiresInMinutes * 60000),
+    });
+  }
+
+  async findByResetToken(token: string) {
+    const hashedToken = hashToken(token);
+
+    const user = await this.repo.findOne({
+      where: {
+        resetPasswordToken: hashedToken,
+        resetTokenExpiresAt: MoreThan(new Date()),
+      },
+    });
+
+    return user || null;
+  }
+
+  async updatePassword(userId: string, hashedPassword: string) {
+    await this.repo.update(userId, { password: hashedPassword });
+  }
+
+  async clearResetToken(userId: string) {
+    await this.repo.update(userId, {
+      resetPasswordToken: null,
+      resetTokenExpiresAt: null,
     });
   }
 }

@@ -8,6 +8,10 @@ export class UserEntity {
     public provider: string | null = null,
     public providerId: string | null = null,
     public role: 'user' | 'admin' = 'user',
-    public currentHashedRefreshToken?: string | null,
+    public currentHashedRefreshToken: string | null = null,
+    public resetPasswordToken: string | null = null,
+    public resetTokenExpiresAt: Date | null = null,
+    public twoFactorSecret: string | null = null,
+    public isTwoFactorEnabled: boolean = false,
   ) {}
 }

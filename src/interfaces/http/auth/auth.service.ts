@@ -1,3 +1,5 @@
+import * as speakeasy from 'speakeasy';
+import * as QRCode from 'qrcode';
 import {
   Injectable,
   UnauthorizedException,
@@ -5,26 +7,42 @@ import {
   Inject,
   NotFoundException,
   HttpStatus,
+  BadRequestException,
 } from '@nestjs/common';
 import { v4 as uuidv4 } from 'uuid';
 import { UserEntity } from '../../../core/domain/entities/user.entity';
 import { JwtService } from '@nestjs/jwt';
-import { BcryptService } from '../../../infrastructure/bcrypt/bcrypt.service';
+import { BcryptService } from '../../../infrastructure/security/bcrypt.service';
 import { ConfigService } from '@nestjs/config';
 import type { IUserRepository } from '@/core/domain/repositories/user.repository';
-import { AuthResponseDto } from './dto/auth.dto';
-import { RegisterResDto } from './dto/register.dto';
-import { TokensDto } from './dto/tokens.dto';
-import { UserDataDto } from '../user/dto/user.dto';
+import { RegisterResDto } from '../../../core/application/dto/auth/register.dto';
+import { TokensDto } from '../../../core/application/dto/auth/tokens.dto';
+import { UserDataDto } from '../../../core/application/dto/user/user.dto';
+import { randomUUID } from 'crypto';
+import { hashToken } from '@/shared/utils/hash-token';
 
 @Injectable()
 export class AuthService {
   constructor(
-    @Inject('IUserRepository') private readonly userRepo: IUserRepository,
+    @Inject('IUserRepository')
+    private readonly userRepo: IUserRepository,
     private readonly jwtService: JwtService,
     private readonly bcryptService: BcryptService,
     private readonly config: ConfigService,
   ) {}
+
+  private async getTokens(userId: string, email: string, role: string) {
+    const payload = { sub: userId, email, role };
+    const accessToken = await this.jwtService.signAsync(payload, {
+      secret: this.config.get('jwt.accessTokenSecret'),
+      expiresIn: this.config.get('jwt.accessTokenExpiration'),
+    });
+    const refreshToken = await this.jwtService.signAsync(payload, {
+      secret: this.config.get('jwt.refreshTokenSecret'),
+      expiresIn: this.config.get('jwt.refreshTokenExpiration'),
+    });
+    return { accessToken, refreshToken };
+  }
 
   async generateTokensForUser(userId: string, email: string, role: string) {
     const tokens = await this.getTokens(userId, email, role);
@@ -45,7 +63,7 @@ export class AuthService {
     name: string,
     email: string,
     password: string,
-  ): Promise<RegisterResDto> {
+  ): Promise<UserDataDto> {
     if (await this.userRepo.findByEmail(email)) {
       throw new ConflictException('Email already registered');
     }
@@ -74,12 +92,10 @@ export class AuthService {
       await this.bcryptService.hash(tokens.refreshToken),
     );
 
-    const userInfo = new UserDataDto(
+    return new UserDataDto(
       created,
       new TokensDto(tokens.accessToken, tokens.refreshToken),
     );
-
-    return new RegisterResDto(userInfo, HttpStatus.CREATED);
   }
 
   async login(email: string, password: string) {
@@ -137,26 +153,13 @@ export class AuthService {
     return tokens;
   }
 
-  private async getTokens(userId: string, email: string, role: string) {
-    const payload = { sub: userId, email, role };
-    const accessToken = await this.jwtService.signAsync(payload, {
-      secret: this.config.get('jwt.accessTokenSecret'),
-      expiresIn: this.config.get('jwt.accessTokenExpiration'),
-    });
-    const refreshToken = await this.jwtService.signAsync(payload, {
-      secret: this.config.get('jwt.refreshTokenSecret'),
-      expiresIn: this.config.get('jwt.refreshTokenExpiration'),
-    });
-    return { accessToken, refreshToken };
-  }
-
   async socialLogin(profile: {
     provider: string;
     providerId: string;
     email?: string;
     name?: string;
     avatar?: string;
-  }) {
+  }): Promise<UserDataDto> {
     let user = await this.userRepo.findByProvider(
       profile.provider,
       profile.providerId,
@@ -181,20 +184,13 @@ export class AuthService {
       await this.userRepo.update(user);
     }
 
-    const tokens = await this.generateTokensForUser(
-      user.id,
-      user.email,
-      user.role,
-    );
+    const tokens = await this.getTokens(user.id, user.email, user.role);
+    const hashedRt = await this.bcryptService.hash(tokens.refreshToken);
+    await this.userRepo.setCurrentRefreshToken(user.id, hashedRt);
 
-    return {
-      provider: profile.provider,
-      providerId: profile.providerId,
-      email: user.email,
-      name: user.name,
-      avatar: user.avatar ?? profile.avatar ?? null,
-      accessToken: tokens.accessToken,
-      refreshToken: tokens.refreshToken,
-    };
+    return new UserDataDto(
+      user,
+      new TokensDto(tokens.accessToken, tokens.refreshToken),
+    );
   }
 }

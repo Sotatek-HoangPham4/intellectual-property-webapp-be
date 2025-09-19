@@ -6,12 +6,15 @@ import {
   Req,
   Get,
   HttpStatus,
+  Patch,
 } from '@nestjs/common';
 import { AuthService } from '@/interfaces/http/auth/auth.service';
-import { RegisterReqDto, RegisterResDto } from './dto/register.dto';
-import { LoginDto } from './dto/login.dto';
-import { RefreshDto } from './dto/refresh.dto';
-import { JwtAuthGuard } from '@/interfaces/http/auth/jwt-auth.guard';
+import {
+  RegisterReqDto,
+  RegisterResDto,
+} from '../../../core/application/dto/auth/register.dto';
+import { LoginDto } from '../../../core/application/dto/auth/login.dto';
+import { JwtAuthGuard } from '@/interfaces/http/auth/guards/jwt-auth.guard';
 import {
   ApiTags,
   ApiBody,
@@ -19,12 +22,10 @@ import {
   ApiOkResponse,
   ApiBearerAuth,
 } from '@nestjs/swagger';
-import { AuthResponseDto } from './dto/auth.dto';
-import { RolesGuard } from '@/common/guards/roles.guard';
+import { RolesGuard } from '@/interfaces/http/auth/guards/roles.guard';
 import { AuthGuard } from '@nestjs/passport';
-import { ApiResponseDto } from '../common/dto/api-response.dto';
-import { TokensDto } from './dto/tokens.dto';
-import { UserDataDto } from '../user/dto/user.dto';
+import { TokensDto } from '../../../core/application/dto/auth/tokens.dto';
+import { UserDataDto } from '../../../core/application/dto/user/user.dto';
 
 @ApiTags('Auth')
 @Controller('auth')
@@ -34,126 +35,29 @@ export class AuthController {
   @Post('register')
   @ApiBody({ type: RegisterReqDto })
   @ApiCreatedResponse({ type: RegisterResDto })
-  async register(@Body() dto: RegisterReqDto): Promise<RegisterResDto> {
-    try {
-      return await this.authService.register(dto.name, dto.email, dto.password);
-    } catch (err) {
-      return new RegisterResDto(
-        null,
-        HttpStatus.BAD_REQUEST,
-        err.message || 'Registration failed',
-      );
-    }
+  async register(@Body() dto: RegisterReqDto) {
+    return this.authService.register(dto.name, dto.email, dto.password);
   }
+
   @Post('login')
   @ApiBody({ type: LoginDto })
   @ApiOkResponse({ type: RegisterResDto })
-  async login(@Body() dto: LoginDto): Promise<RegisterResDto> {
-    try {
-      const { accessToken, refreshToken, user } = await this.authService.login(
-        dto.email,
-        dto.password,
-      );
+  async login(@Body() dto: LoginDto) {
+    const { accessToken, refreshToken, user } = await this.authService.login(
+      dto.email,
+      dto.password,
+    );
 
-      const userInfo = new UserDataDto(
-        user,
-        new TokensDto(accessToken, refreshToken),
-      );
-
-      return new RegisterResDto(
-        userInfo,
-        HttpStatus.OK,
-        'User successfully logged in',
-      );
-    } catch (err) {
-      return new RegisterResDto(
-        null,
-        HttpStatus.BAD_REQUEST,
-        err.message || 'Login failed',
-      );
-    }
+    return new UserDataDto(user, new TokensDto(accessToken, refreshToken));
   }
-
-  // @Post('login')
-  // @ApiBody({ type: LoginDto })
-  // @ApiCreatedResponse({ type: LoginDto })
-  // async login(@Body() dto: LoginDto): Promise<ApiResponseDto<AuthResponseDto>> {
-  //   try {
-  //     const { accessToken, refreshToken, user } = await this.authService.login(
-  //       dto.email,
-  //       dto.password,
-  //     );
-
-  //     return {
-  //       status: HttpStatus.OK,
-  //       message: 'User successfully logged in',
-  //       data: {
-  //         provider: user.provider ?? 'local',
-  //         providerId: user.providerId ?? user.id,
-  //         email: user.email,
-  //         name: user.name,
-  //         avatar: user.avatar ?? null,
-  //         accessToken,
-  //         refreshToken,
-  //       },
-  //     };
-  //   } catch (err) {
-  //     return {
-  //       status: HttpStatus.BAD_REQUEST,
-  //       message: err.message || 'Login failed',
-  //       data: undefined,
-  //     };
-  //   }
-  // }
-
-  // @Post('refresh')
-  // @ApiBody({ type: RefreshDto })
-  // @ApiOkResponse({ type: ApiResponseDto<AuthResponseDto> })
-  // async refresh(
-  //   @Body() dto: RefreshDto,
-  // ): Promise<ApiResponseDto<AuthResponseDto>> {
-  //   try {
-  //     const tokens = await this.authService.refreshTokens(
-  //       dto.userId,
-  //       dto.refreshToken,
-  //     );
-  //     const user = await this.authService.getUserById(dto.userId);
-
-  //     return {
-  //       status: HttpStatus.OK,
-  //       message: 'User successfully refreshed',
-  //       data: {
-  //         provider: user.provider ?? 'local',
-  //         providerId: user.providerId ?? user.id,
-  //         email: user.email,
-  //         name: user.name,
-  //         avatar: user.avatar ?? undefined,
-  //         accessToken: tokens.accessToken,
-  //         refreshToken: tokens.refreshToken,
-  //       },
-  //     };
-  //   } catch (err) {
-  //     return {
-  //       status: HttpStatus.BAD_REQUEST,
-  //       message: err.message || 'Refresh failed',
-  //       data: undefined,
-  //     };
-  //   }
-  // }
 
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Post('logout')
   @ApiBearerAuth()
-  @ApiOkResponse({
-    description: 'User successfully logout',
-    schema: {
-      example: { success: true },
-    },
-  })
+  @ApiOkResponse({ description: 'User successfully logout' })
   async logout(@Req() req: any) {
-    const userId = req.user.userId;
-    await this.authService.logout(userId);
-    return { success: true };
+    await this.authService.logout(req.user.id);
+    return { message: 'User logout successfully' };
   }
 
   // Google Login
@@ -165,10 +69,10 @@ export class AuthController {
 
   @Get('google/redirect')
   @UseGuards(AuthGuard('google'))
-  @ApiOkResponse({ type: AuthResponseDto })
-  async googleRedirect(@Req() req): Promise<AuthResponseDto> {
+  async googleRedirect(@Req() req) {
     return this.authService.socialLogin(req.user);
   }
+
   // Facebook Login
   @Get('facebook')
   @UseGuards(AuthGuard('facebook'))

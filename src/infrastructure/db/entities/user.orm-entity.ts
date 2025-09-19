@@ -34,4 +34,18 @@ export class UserOrmEntity {
 
   @Column({ type: 'varchar', default: 'user' })
   role: 'user' | 'admin';
+
+  // --- Reset Password ---
+  @Column({ type: 'varchar', nullable: true })
+  resetPasswordToken: string | null;
+
+  @Column({ type: 'timestamp', nullable: true })
+  resetTokenExpiresAt: Date | null;
+
+  // --- 2FA / MFA ---
+  @Column({ type: 'varchar', nullable: true })
+  twoFactorSecret: string | null;
+
+  @Column({ type: 'boolean', default: false })
+  isTwoFactorEnabled: boolean;
 }

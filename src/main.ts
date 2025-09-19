@@ -3,6 +3,8 @@ import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import { ResponseInterceptor } from './shared/interceptors/response.interceptor';
+import { GlobalExceptionFilter } from './shared/filters/global-exception.filter';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -29,6 +31,9 @@ async function bootstrap() {
   SwaggerModule.setup('api/v1/docs', app, document, {
     swaggerOptions: { persistAuthorization: true },
   });
+
+  app.useGlobalInterceptors(new ResponseInterceptor());
+  app.useGlobalFilters(new GlobalExceptionFilter());
 
   await app.listen(port);
   console.log(`🚀 Server running on http://localhost:${port}`);

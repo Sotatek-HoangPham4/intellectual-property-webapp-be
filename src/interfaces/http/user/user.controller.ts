@@ -10,13 +10,13 @@ import {
   Req,
 } from '@nestjs/common';
 import { v4 as uuidv4 } from 'uuid';
-import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { UserRepositoryImpl } from '@/infrastructure/db/user.repository.impl';
-import { BcryptService } from '@/infrastructure/bcrypt/bcrypt.service';
-import { CreateUserDto } from '@/core/application/dto/create-user.dto';
+import { BcryptService } from '@/infrastructure/security/bcrypt.service';
 import { AuthService } from '@/interfaces/http/auth/auth.service';
-import { RolesGuard } from '@/common/guards/roles.guard';
-import { Roles } from '@/common/decorators/roles.decorator';
+import { RolesGuard } from '@/interfaces/http/auth/guards/roles.guard';
+import { Roles } from '@/shared/decorators/roles.decorator';
+import { CreateUserDto } from '@/core/application/dto/user/create-user.dto';
 
 @UseGuards(JwtAuthGuard, RolesGuard)
 @Roles('admin')

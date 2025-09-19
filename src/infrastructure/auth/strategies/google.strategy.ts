@@ -2,7 +2,7 @@ import { PassportStrategy } from '@nestjs/passport';
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Profile, Strategy, StrategyOptions } from 'passport-google-oauth20';
-import { AuthResponseDto } from '@/interfaces/http/auth/dto/auth.dto';
+import { AuthResponseDto } from '@/core/application/dto/auth/auth.dto';
 
 @Injectable()
 export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {

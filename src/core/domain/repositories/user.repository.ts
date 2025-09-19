@@ -15,4 +15,14 @@ export interface IUserRepository {
     provider: string,
     providerId: string,
   ): Promise<UserEntity | null>;
+
+  // ==== Add password management methods ====
+  setResetPasswordToken(
+    userId: string,
+    hashedToken: string,
+    expiresInMinutes: number,
+  ): Promise<void>;
+  findByResetToken(token: string): Promise<UserEntity | null>;
+  updatePassword(userId: string, hashedPassword: string): Promise<void>;
+  clearResetToken(userId: string): Promise<void>;
 }
