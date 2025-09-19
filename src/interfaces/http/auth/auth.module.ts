@@ -5,7 +5,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { UserOrmEntity } from '@/infrastructure/db/entities/user.orm-entity';
 import { AuthService } from '@/interfaces/http/auth/auth.service';
 import { BcryptService } from '@/infrastructure/security/bcrypt.service';
-import { UserRepositoryImpl } from '@/infrastructure/db/user.repository.impl';
+import { UserRepositoryImpl } from '@/infrastructure/db/typeorm/user.repository.impl';
 import { AuthController } from './auth.controller';
 import { PassportModule } from '@nestjs/passport';
 import { JwtStrategy } from '@/infrastructure/auth/jwt.strategy';

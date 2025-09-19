@@ -27,56 +27,158 @@
 
 ```
 src/
-├── app.module.ts                # Root module của NestJS
-├── main.ts                      # Entry point
-│
-├── config/                      # Configs, env variables, validation schemas
-│   ├── configuration.ts
-│   └── validation.ts
-│
-├── core/                        # DOMAIN + APPLICATION LAYER
-│   ├── domain/                  # Business logic thuần (KHÔNG phụ thuộc NestJS)
-│   │   ├── entities/            # Domain entities (Aggregate Roots, Value Objects)
-│   │   │   └── user.entity.ts
-│   │   ├── repositories/        # Interface cho repositories (abstraction)
-│   │   │   └── user.repository.ts
-│   │   └── services/            # Domain services (pure business rules)
-│   │       └── user.domain-service.ts
-│   │
-│   └── application/             # Application layer (use cases)
-│       ├── use-cases/           # Các trường hợp sử dụng
-│       │   └── create-user.use-case.ts
-│       ├── dto/                 # DTO request/response (application layer)
-│       │   └── create-user.dto.ts
-│       └── mappers/             # Map từ entity <-> dto
-│           └── user.mapper.ts
-│
-├── infrastructure/              # Infrastructure layer (implementations)
-│   ├── database/
-│   │   ├── prisma/              # Hoặc typeorm, mongoose...
-│   │   │   ├── prisma.service.ts
-│   │   │   └── user.repository.impl.ts
-│   │   └── migrations/
-│   │
-│   ├── auth/                    # JWT, Passport strategies
-│   ├── cache/                   # Redis cache
-│   └── adapters/                # 3rd party integrations (email, payment...)
-│
-├── interfaces/                  # Interface layer (NestJS modules/controllers)
-│   ├── http/                    # REST API controllers
-│   │   ├── user/
-│   │   │   ├── user.controller.ts
-│   │   │   └── user.module.ts
-│   │   └── auth/
-│   │       └── auth.controller.ts
-│   │
-│   └── graphql/                 # Nếu dùng GraphQL resolver
-│
-└── shared/                      # Shared kernel (utils, filters, interceptors)
-    ├── exceptions/
-    ├── decorators/
-    ├── pipes/
-    └── utils/
+├─ config/
+│  ├─ configuration.ts        # Centralized config loader (env vars, DB URLs, secrets)
+│  └─ validation.ts           # Validates environment variables before app starts
+├─ core/
+│  ├─ application/
+│  │  ├─ dto/
+│  │  │  ├─ auth/
+│  │  │  │  ├─ auth.dto.ts         # Base auth response/request DTO
+│  │  │  │  ├─ login.dto.ts        # DTO for login payload
+│  │  │  │  ├─ oauth.dto.ts        # DTO for OAuth provider login (code, state)
+│  │  │  │  ├─ refresh.dto.ts      # DTO for refresh token request
+│  │  │  │  ├─ register.dto.ts     # DTO for user registration
+│  │  │  │  └─ tokens.dto.ts       # DTO containing access/refresh tokens
+│  │  │  ├─ communication/         # DTOs for communication layer (email, SMS)
+│  │  │  ├─ security/
+│  │  │  │  ├─ 2fa/
+│  │  │  │  │  ├─ setup-2fa.dto.ts   # Request to setup 2FA (TOTP)
+│  │  │  │  │  └─ verify-2fa.dto.ts  # Request to verify 2FA code
+│  │  │  │  └─ password/
+│  │  │  │     ├─ change-password.dto.ts # Payload for password change
+│  │  │  │     ├─ forgot-password.dto.ts # Payload for forgot password (email)
+│  │  │  │     └─ reset-password.dto.ts  # Payload for reset password (token + new password)
+│  │  │  └─ user/
+│  │  │     ├─ create-user.dto.ts  # DTO for creating a user (admin, service)
+│  │  │     └─ user.dto.ts         # Standard user response DTO
+│  │  ├─ mappers/
+│  │  │  ├─ oauth.mapper.ts        # Map OAuth provider data -> User entity
+│  │  │  └─ user.mapper.ts         # Map User entity -> User DTO
+│  │  └─ use-cases/
+│  │     ├─ auth/
+│  │     │  ├─ login-with-oauth.use-case.ts # Handle OAuth login flow
+│  │     │  ├─ login.use-case.ts            # Handle normal login
+│  │     │  ├─ magic-link-request.use-case.ts # Send magic link email
+│  │     │  ├─ magic-link-verify.use-case.ts  # Verify magic link
+│  │     │  ├─ refresh-token.use-case.ts      # Generate new access token from refresh token
+│  │     │  ├─ register.use-case.ts           # Register user
+│  │     │  ├─ revoke-token.use-case.ts       # Revoke refresh token
+│  │     │  ├─ webauthn-authenticate.use-case.ts # WebAuthn login
+│  │     │  └─ webauthn-register.use-case.ts     # WebAuthn register
+│  │     ├─ oauth/
+│  │     │  ├─ login-with-external-provider.use-case.ts # Generic OAuth login handler
+│  │     │  └─ login-with-saml.use-case.ts              # Handle SAML SSO login
+│  │     ├─ security/
+│  │     │  ├─ 2fa/
+│  │     │  │  ├─ disable-2fa.use-case.ts   # Disable 2FA for user
+│  │     │  │  ├─ totp-setup.use-case.ts    # Setup TOTP secret
+│  │     │  │  └─ totp-verify.use-case.ts   # Verify TOTP code
+│  │     │  ├─ password/
+│  │     │  │  ├─ change-password.use-case.ts # Change password use case
+│  │     │  │  ├─ forgot-password.use-case.ts # Send reset link
+│  │     │  │  └─ reset-password.use-case.ts  # Reset password
+│  │     │  └─ sessions/
+│  │     │     ├─ list-sessions.use-case.ts   # List active sessions for a user
+│  │     │     └─ revoke-session.use-case.ts  # Kill a session by ID
+│  │     └─ user/
+│  │        ├─ create-user.use-case.ts   # Business logic for creating a user
+│  │        ├─ delete-user.use-case.ts   # Delete user by ID
+│  │        ├─ get-user.use-case.ts      # Fetch user details
+│  │        └─ update-user.use-case.ts   # Update user info
+│  └─ domain/
+│     ├─ entities/
+│     │  ├─ session.entity.ts  # Domain representation of session
+│     │  ├─ token.entity.ts    # Domain representation of token (refresh token)
+│     │  └─ user.entity.ts     # Domain representation of user (id, email, password)
+│     ├─ repositories/
+│     │  ├─ session.repository.ts # Interface for session storage
+│     │  ├─ token.repository.ts   # Interface for token storage
+│     │  └─ user.repository.ts    # Interface for user storage
+│     ├─ services/
+│     │  └─ password-policy.service.ts # Business rules for password strength, expiration
+│     └─ value-objects/
+│        └─ email.vo.ts # Value object for validating/formatting email
+├─ infrastructure/
+│  ├─ adapters/
+│  │  ├─ email/templates/
+│  │  │  ├─ magic-link.template.hbs    # Handlebars template for magic link email
+│  │  │  ├─ password-reset.template.hbs# Template for reset password email
+│  │  │  └─ welcome.template.hbs       # Template for welcome email
+│  │  └─ oauth/
+│  │     └─ oauth.session.adapter.ts   # Store temporary OAuth session (e.g. in Redis)
+│  ├─ auth/
+│  │  ├─ strategies/
+│  │  │  ├─ facebook.strategy.ts  # Passport strategy for Facebook OAuth
+│  │  │  └─ google.strategy.ts    # Passport strategy for Google OAuth
+│  │  └─ jwt.strategy.ts          # Passport strategy for JWT verification
+│  ├─ cache/
+│  │  ├─ rate-limit/login-rate-limiter.service.ts # Service to limit login attempts
+│  │  └─ redis.client.ts          # Redis connection client
+│  ├─ db/
+│  │  ├─ entities/user.orm-entity.ts # Database entity for user (ORM)
+│  │  ├─ migrations/              # DB migration scripts
+│  │  ├─ prisma/prisma.service.ts # Prisma database connection
+│  │  └─ typeorm/
+│  │     ├─ audit-log.repository.impl.ts # Log user auth events
+│  │     ├─ session.repository.impl.ts   # DB implementation of session repository
+│  │     ├─ token.repository.impl.ts     # DB implementation of token repository
+│  │     └─ user.repository.impl.ts      # DB implementation of user repository
+│  ├─ email/email.client.ts      # Email sending client (SMTP/SES)
+│  ├─ oauth/
+│  │  ├─ facebook.adapter.ts     # Facebook API adapter
+│  │  ├─ github.adapter.ts       # GitHub API adapter
+│  │  ├─ google.adapter.ts       # Google API adapter
+│  │  ├─ oidc.adapter.ts         # OIDC generic adapter
+│  │  └─ saml.adapter.ts         # SAML login adapter
+│  ├─ security/
+│  │  ├─ bcrypt.service.ts       # Password hashing service
+│  │  ├─ hmac-hash.service.ts    # Token hashing service
+│  │  └─ jwt.service.ts          # JWT sign/verify service
+│  ├─ sms/sms.client.ts          # SMS sending client
+│  └─ webauthn/webauthn.adapter.ts # WebAuthn server-side adapter
+├─ interfaces/
+│  ├─ http/
+│  │  ├─ auth/
+│  │  │  ├─ guards/
+│  │  │  │  ├─ jwt-auth.guard.ts       # Guard that protects endpoints with JWT
+│  │  │  │  ├─ permissions.guard.ts    # Guard for fine-grained permissions
+│  │  │  │  ├─ refresh-token.guard.ts  # Guard for refresh token endpoints
+│  │  │  │  └─ roles.guard.ts          # Guard for role-based access control
+│  │  │  ├─ auth.controller.ts         # REST API endpoints for login, register, refresh
+│  │  │  ├─ auth.module.ts             # Nest module for auth (registers strategies, providers)
+│  │  │  └─ auth.service.ts            # Orchestrates auth use cases (application layer)
+│  │  ├─ oauth/
+│  │  │  ├─ oauth.controller.ts        # Endpoints for OAuth redirect/callback
+│  │  │  └─ oauth.service.ts           # Service that calls OAuth use cases
+│  │  ├─ security/
+│  │  │  ├─ 2fa/2fa.controller.ts      # Endpoints for enabling/disabling 2FA
+│  │  │  ├─ 2fa/2fa.service.ts         # 2FA orchestration service
+│  │  │  ├─ password/password.controller.ts # Endpoints for password reset/change
+│  │  │  ├─ password/password.service.ts    # Calls password use cases
+│  │  │  ├─ session/session.controller.ts   # Endpoints to list/revoke sessions
+│  │  │  └─ session/session.service.ts      # Calls session use cases
+│  │  └─ token/
+│  │     ├─ token.controller.ts        # Endpoints for token refresh/revoke
+│  │     └─ token.service.ts           # Calls token use cases
+│  └─ user/
+│     ├─ user.controller.ts            # User profile endpoints
+│     └─ user.module.ts                # Nest module for user feature
+├─ scripts/
+│  └─ account-seed.ts           # Script to seed initial users (admin/test)
+├─ shared/
+│  ├─ decorators/roles.decorator.ts # Custom decorator for RBAC
+│  ├─ exceptions/not-found.exception.ts # Custom NotFoundException
+│  ├─ filters/global-exception.filter.ts # Global exception handler
+│  ├─ interceptors/response.interceptor.ts # Transform responses globally
+│  ├─ utils/
+│  │  ├─ api-response.ts        # Standard API response wrapper
+│  │  ├─ hash-token.ts          # Utility to hash tokens
+│  │  ├─ response.helper.ts     # Helper for consistent response formatting
+│  │  └─ time.util.ts           # Time/date utilities
+├─ app.module.ts                # Root Nest module, imports all feature modules
+└─ main.ts                      # Application bootstrap (entry point)
+
 ```
 
 ## Project setup

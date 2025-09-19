@@ -11,7 +11,7 @@ import {
 } from '@nestjs/common';
 import { v4 as uuidv4 } from 'uuid';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
-import { UserRepositoryImpl } from '@/infrastructure/db/user.repository.impl';
+import { UserRepositoryImpl } from '@/infrastructure/db/typeorm/user.repository.impl';
 import { BcryptService } from '@/infrastructure/security/bcrypt.service';
 import { AuthService } from '@/interfaces/http/auth/auth.service';
 import { RolesGuard } from '@/interfaces/http/auth/guards/roles.guard';

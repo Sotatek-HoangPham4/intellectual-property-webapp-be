@@ -5,7 +5,7 @@ import { MoreThan, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import type { IUserRepository } from '@/core/domain/repositories/user.repository';
 import { UserEntity } from '@/core/domain/entities/user.entity';
-import { UserOrmEntity } from './entities/user.orm-entity';
+import { UserOrmEntity } from '../entities/user.orm-entity';
 import { hashToken } from '@/shared/utils/hash-token';
 
 @Injectable()

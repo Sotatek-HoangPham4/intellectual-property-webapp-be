@@ -28,6 +28,7 @@ src/
 │ │ │ ├─ create-user.dto.ts
 │ │ │ └─ user.dto.ts
 │ │ ├─ mappers/
+│ │ │ ├─ oauth.mapper.ts
 │ │ │ └─ user.mapper.ts
 │ │ └─ use-cases/
 │ │ ├─ auth/
@@ -75,12 +76,21 @@ src/
 │ └─ email.vo.ts
 ├─ infrastructure/
 │ ├─ adapters/
+│ │ ├─ email/
+│ │ │ └─ templates/
+│ │ │ ├─ magic-link.template.hbs
+│ │ │ ├─ password-reset.template.hbs
+│ │ │ └─ welcome.template.hbs
+│ │ └─ oauth/
+│ │ └─ oauth.session.adapter.ts
 │ ├─ auth/
 │ │ ├─ strategies/
 │ │ │ ├─ facebook.strategy.ts
 │ │ │ └─ google.strategy.ts
 │ │ └─ jwt.strategy.ts
 │ ├─ cache/
+│ │ ├─ rate-limit/
+│ │ │ └─ login-rate-limiter.service.ts
 │ │ └─ redis.client.ts
 │ ├─ db/
 │ │ ├─ entities/
@@ -89,6 +99,10 @@ src/
 │ │ ├─ prisma/
 │ │ │ ├─ prisma.service.ts
 │ │ │ └─ user.repository.impl.ts
+│ │ └─ typeorm/
+│ │ ├─ audit-log.repository.impl.ts
+│ │ ├─ session.repository.impl.ts
+│ │ ├─ token.repository.impl.ts
 │ │ └─ user.repository.impl.ts
 │ ├─ email/
 │ │ ├─ templates/
@@ -114,6 +128,8 @@ src/
 │ ├─ auth/
 │ │ ├─ guards/
 │ │ │ ├─ jwt-auth.guard.ts
+│ │ │ ├─ permissions.guard.ts
+│ │ │ ├─ refresh-token.guard.ts
 │ │ │ └─ roles.guard.ts
 │ │ ├─ auth.controller.ts
 │ │ ├─ auth.module.ts
@@ -132,6 +148,9 @@ src/
 │ │ ├─ password/
 │ │ │ ├─ password.controller.ts
 │ │ │ └─ password.service.ts
+│ │ ├─ session/
+│ │ │ ├─ session.controller.ts
+│ │ │ └─ session.service.ts
 │ │ └─ token/
 │ │ ├─ token.controller.ts
 │ │ └─ token.service.ts
