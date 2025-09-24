@@ -16,10 +16,11 @@ import { BcryptService } from '../../../infrastructure/security/bcrypt.service';
 import { ConfigService } from '@nestjs/config';
 import type { IUserRepository } from '@/core/domain/repositories/user.repository';
 import { RegisterResDto } from '../../../core/application/dto/auth/register.dto';
-import { TokensDto } from '../../../core/application/dto/auth/tokens.dto';
+import { TokensDto } from '../../../core/application/dto/security/token/tokens.dto';
 import { UserDataDto } from '../../../core/application/dto/user/user.dto';
 import { randomUUID } from 'crypto';
 import { hashToken } from '@/shared/utils/hash-token';
+import { SessionService } from '../security/session/session.service';
 
 @Injectable()
 export class AuthService {
@@ -29,6 +30,7 @@ export class AuthService {
     private readonly jwtService: JwtService,
     private readonly bcryptService: BcryptService,
     private readonly config: ConfigService,
+    private readonly sessionService: SessionService,
   ) {}
 
   private async getTokens(userId: string, email: string, role: string) {
@@ -112,6 +114,13 @@ export class AuthService {
     const tokens = await this.getTokens(user.id, user.email, user.role);
     const hashedRt = await this.bcryptService.hash(tokens.refreshToken);
     await this.userRepo.setCurrentRefreshToken(user.id, hashedRt);
+
+    await this.sessionService.createSessionForLogin({
+      userId: user.id,
+      refreshToken: tokens.refreshToken,
+      ip: '127.0.0.1',
+      userAgent: 'Postman',
+    });
 
     return {
       ...tokens,

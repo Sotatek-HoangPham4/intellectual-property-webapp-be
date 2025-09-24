@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { TokensDto } from '../auth/tokens.dto';
+import { TokensDto } from '../security/token/tokens.dto';
 
 export class UserDataDto {
   @ApiProperty({ example: 'd10fff8c-fa0f-47b1-9031-8d2e7e0ebbbf' })

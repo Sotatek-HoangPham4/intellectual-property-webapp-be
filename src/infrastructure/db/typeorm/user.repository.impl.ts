@@ -1,16 +1,20 @@
 // infrastructure/database/user.repository.impl.ts
 import * as bcrypt from 'bcrypt';
 import { Injectable } from '@nestjs/common';
-import { MoreThan, Repository } from 'typeorm';
+import { DataSource, MoreThan, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import type { IUserRepository } from '@/core/domain/repositories/user.repository';
 import { UserEntity } from '@/core/domain/entities/user.entity';
 import { UserOrmEntity } from '../entities/user.orm-entity';
 import { hashToken } from '@/shared/utils/hash-token';
+import { CredentialOrmEntity } from '../entities/credential.orm-entity';
 
 @Injectable()
 export class UserRepositoryImpl implements IUserRepository {
+  private challenges = new Map<string, string>();
+
   constructor(
+    private readonly dataSource: DataSource,
     @InjectRepository(UserOrmEntity)
     private readonly repo: Repository<UserOrmEntity>,
   ) {}
@@ -38,9 +42,12 @@ export class UserRepositoryImpl implements IUserRepository {
   }
 
   async findByEmail(email: string): Promise<UserEntity | null> {
-    return await this.repo.findOne({ where: { email } });
+    const user = await this.repo.findOne({
+      where: { email },
+      relations: ['credentials'],
+    });
+    return user;
   }
-
   async setCurrentRefreshToken(
     userId: string,
     hashedToken: string | null,
@@ -93,5 +100,23 @@ export class UserRepositoryImpl implements IUserRepository {
       resetPasswordToken: null,
       resetTokenExpiresAt: null,
     });
+  }
+
+  async saveChallenge(userId: string, challenge: string) {
+    this.challenges.set(userId, challenge);
+  }
+
+  async getChallenge(userId: string) {
+    return this.challenges.get(userId);
+  }
+
+  async updateCounter(
+    userId: string,
+    credentialId: string,
+    newCounter: number,
+  ) {
+    await this.dataSource
+      .getRepository(CredentialOrmEntity)
+      .update({ user: { id: userId }, credentialId }, { counter: newCounter });
   }
 }

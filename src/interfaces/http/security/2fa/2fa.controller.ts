@@ -1,7 +1,7 @@
 import { Controller, Post, Body, Req, UseGuards } from '@nestjs/common';
 import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
 import { TwoFactorAuthService } from './2fa.service';
-import { Verify2FADto } from '../../../../core/application/dto/security/2fa/verify-2fa.dto';
+import { Verify2FADto } from '@/core/application/dto/security/2fa/verify-2fa.dto';
 
 @Controller('auth/2fa')
 @UseGuards(JwtAuthGuard)

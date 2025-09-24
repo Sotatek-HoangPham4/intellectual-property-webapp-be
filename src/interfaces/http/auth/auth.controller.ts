@@ -24,7 +24,7 @@ import {
 } from '@nestjs/swagger';
 import { RolesGuard } from '@/interfaces/http/auth/guards/roles.guard';
 import { AuthGuard } from '@nestjs/passport';
-import { TokensDto } from '../../../core/application/dto/auth/tokens.dto';
+import { TokensDto } from '../../../core/application/dto/security/token/tokens.dto';
 import { UserDataDto } from '../../../core/application/dto/user/user.dto';
 
 @ApiTags('Auth')

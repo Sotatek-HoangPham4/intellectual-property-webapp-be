@@ -1,3 +1,5 @@
+import { CredentialOrmEntity } from '@/infrastructure/db/entities/credential.orm-entity';
+
 export class UserEntity {
   constructor(
     public id: string,
@@ -13,5 +15,7 @@ export class UserEntity {
     public resetTokenExpiresAt: Date | null = null,
     public twoFactorSecret: string | null = null,
     public isTwoFactorEnabled: boolean = false,
+
+    public credentials: CredentialOrmEntity[] = [],
   ) {}
 }

@@ -6,9 +6,9 @@ import {
   ApiBearerAuth,
 } from '@nestjs/swagger';
 import { PasswordService } from './password.service';
-import { ForgotPasswordDto } from '../../../../core/application/dto/security/password/forgot-password.dto';
-import { ResetPasswordDto } from '../../../../core/application/dto/security/password/reset-password.dto';
-import { ChangePasswordDto } from '../../../../core/application/dto/security/password/change-password.dto';
+import { ForgotPasswordDto } from '@/core/application/dto/security/password/forgot-password.dto';
+import { ResetPasswordDto } from '@/core/application/dto/security/password/reset-password.dto';
+import { ChangePasswordDto } from '@/core/application/dto/security/password/change-password.dto';
 import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
 
 @ApiTags('Password Management')

@@ -5,10 +5,21 @@ import { UserController } from './user.controller';
 import { UserRepositoryImpl } from '@/infrastructure/db/typeorm/user.repository.impl';
 import { BcryptService } from '@/infrastructure/security/bcrypt.service';
 import { AuthModule } from '../auth/auth.module';
+import { CredentialOrmEntity } from '@/infrastructure/db/entities/credential.orm-entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([UserOrmEntity]), AuthModule],
+  imports: [
+    TypeOrmModule.forFeature([UserOrmEntity, CredentialOrmEntity]),
+    AuthModule,
+  ],
   controllers: [UserController],
-  providers: [UserRepositoryImpl, BcryptService],
+  providers: [
+    BcryptService,
+    {
+      provide: 'IUserRepository',
+      useClass: UserRepositoryImpl,
+    },
+  ],
+  exports: ['IUserRepository'],
 })
 export class UserModule {}

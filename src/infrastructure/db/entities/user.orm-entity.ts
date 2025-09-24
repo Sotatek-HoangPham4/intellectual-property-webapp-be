@@ -1,4 +1,6 @@
-import { Entity, PrimaryGeneratedColumn, Column } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from 'typeorm';
+import { CredentialOrmEntity } from './credential.orm-entity';
+import { SessionOrmEntity } from './session.orm-entity';
 
 @Entity('users')
 export class UserOrmEntity {
@@ -48,4 +50,12 @@ export class UserOrmEntity {
 
   @Column({ type: 'boolean', default: false })
   isTwoFactorEnabled: boolean;
+
+  // --- Credentials ---
+  @OneToMany(() => CredentialOrmEntity, (cred) => cred.user, { cascade: true })
+  credentials: CredentialOrmEntity[];
+
+  // --- Sessions ---
+  @OneToMany(() => SessionOrmEntity, (s) => s.user)
+  sessions: SessionOrmEntity[];
 }

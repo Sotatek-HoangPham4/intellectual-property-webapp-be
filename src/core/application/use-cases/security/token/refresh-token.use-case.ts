@@ -7,7 +7,7 @@ import {
 import {
   RefreshTokenRequestDto,
   RefreshTokenResponseDto,
-} from '@/core/application/dto/auth/refresh.dto';
+} from '@/core/application/dto/security/token/refresh-token.dto';
 import { RefreshToken } from '@/core/domain/entities/refresh-token.entity';
 import { config } from '@/config';
 import { RefreshTokenRepository } from '@/core/domain/repositories/refresh-token.repository';

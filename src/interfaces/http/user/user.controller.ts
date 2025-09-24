@@ -8,6 +8,7 @@ import {
   Delete,
   UseGuards,
   Req,
+  Inject,
 } from '@nestjs/common';
 import { v4 as uuidv4 } from 'uuid';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
@@ -23,6 +24,7 @@ import { CreateUserDto } from '@/core/application/dto/user/create-user.dto';
 @Controller('users')
 export class UserController {
   constructor(
+    @Inject('IUserRepository')
     private readonly userRepo: UserRepositoryImpl,
     private readonly bcryptService: BcryptService,
     private readonly authService: AuthService,

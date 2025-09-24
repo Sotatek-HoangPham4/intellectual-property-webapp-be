@@ -6,6 +6,9 @@ import { UserOrmEntity } from '@/infrastructure/db/entities/user.orm-entity';
 import { UserModule } from '@/interfaces/http/user/user.module';
 import { AuthModule } from '@/interfaces/http/auth/auth.module';
 import { SecurityModule } from './interfaces/http/security/security.module';
+import { WebAuthModule } from './interfaces/http/webauth/webauth.module';
+import { CredentialOrmEntity } from './infrastructure/db/entities/credential.orm-entity';
+import { SessionOrmEntity } from './infrastructure/db/entities/session.orm-entity';
 
 @Module({
   imports: [
@@ -19,13 +22,14 @@ import { SecurityModule } from './interfaces/http/security/security.module';
         username: config.get('db.user'),
         password: config.get('db.pass'),
         database: config.get('db.name'),
-        entities: [UserOrmEntity],
+        entities: [UserOrmEntity, CredentialOrmEntity, SessionOrmEntity],
         autoLoadEntities: true,
-        synchronize: true, // dev only
+        synchronize: true,
       }),
     }),
     UserModule,
     AuthModule,
+    WebAuthModule,
     SecurityModule,
   ],
 })

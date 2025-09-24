@@ -25,4 +25,6 @@ export interface IUserRepository {
   findByResetToken(token: string): Promise<UserEntity | null>;
   updatePassword(userId: string, hashedPassword: string): Promise<void>;
   clearResetToken(userId: string): Promise<void>;
+
+  // ==== User Credential ====
 }

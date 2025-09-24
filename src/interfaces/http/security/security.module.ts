@@ -16,6 +16,8 @@ import { PasswordService } from './password/password.service';
 import { TwoFactorAuthController } from './2fa/2fa.controller';
 import { TwoFactorAuthService } from './2fa/2fa.service';
 import { TokenModule } from './token/token.module';
+import { MagicAuthModule } from './magic-link/magic-auth.module';
+import { SessionModule } from './session/session.module';
 
 @Module({
   imports: [
@@ -24,6 +26,8 @@ import { TokenModule } from './token/token.module';
     JwtModule.register({}),
     TypeOrmModule.forFeature([UserOrmEntity]),
     TokenModule,
+    SessionModule,
+    MagicAuthModule,
   ],
   controllers: [PasswordController, TwoFactorAuthController],
   providers: [
@@ -38,6 +42,11 @@ import { TokenModule } from './token/token.module';
       useClass: UserRepositoryImpl,
     },
   ],
-  exports: [PasswordService, TwoFactorAuthService, TokenModule],
+  exports: [
+    PasswordService,
+    TwoFactorAuthService,
+    TokenModule,
+    MagicAuthModule,
+  ],
 })
 export class SecurityModule {}

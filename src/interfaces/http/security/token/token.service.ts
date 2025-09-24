@@ -2,13 +2,14 @@ import { Injectable } from '@nestjs/common';
 import {
   RefreshTokenRequestDto,
   RefreshTokenResponseDto,
-} from '../../../../core/application/dto/auth/refresh.dto';
+} from '@/core/application/dto/security/token/refresh-token.dto';
+
+import { RefreshTokenUseCase } from '@/core/application/use-cases/security/token/refresh-token.use-case';
+import { RevokeTokenUseCase } from '@/core/application/use-cases/security/token/revoke-token.use-case';
 import {
   RevokeTokenRequestDto,
   RevokeTokenResponseDto,
-} from '../../../../core/application/dto/auth/tokens.dto';
-import { RefreshTokenUseCase } from '@/core/application/use-cases/security/token/refresh-token.use-case';
-import { RevokeTokenUseCase } from '@/core/application/use-cases/security/token/revoke-token.use-case';
+} from '@/core/application/dto/security/token/revoke-token.dto';
 
 @Injectable()
 export class TokenServiceAdapter {

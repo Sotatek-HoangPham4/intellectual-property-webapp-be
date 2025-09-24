@@ -1,6 +1,6 @@
 import { IsEmail, IsNotEmpty, MinLength } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
-import { TokensDto } from './tokens.dto';
+import { TokensDto } from '../security/token/tokens.dto';
 import { UserDataDto } from '../user/user.dto';
 
 export class RegisterReqDto {

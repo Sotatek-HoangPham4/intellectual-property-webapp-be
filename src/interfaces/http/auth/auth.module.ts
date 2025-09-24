@@ -15,10 +15,13 @@ import { TwoFactorAuthController } from '../security/2fa/2fa.controller';
 import { TwoFactorAuthService } from '../security/2fa/2fa.service';
 import { PasswordController } from '../security/password/password.controller';
 import { PasswordService } from '../security/password/password.service';
+import { SessionService } from '../security/session/session.service';
+import { SessionModule } from '../security/session/session.module';
 
 @Module({
   imports: [
     ConfigModule,
+    SessionModule,
     JwtModule.register({}),
     TypeOrmModule.forFeature([UserOrmEntity]),
     PassportModule.register({ defaultStrategy: 'jwt' }),
@@ -26,6 +29,7 @@ import { PasswordService } from '../security/password/password.service';
   controllers: [AuthController, PasswordController, TwoFactorAuthController],
   providers: [
     AuthService,
+    SessionService,
     PasswordService,
     TwoFactorAuthService,
     BcryptService,
