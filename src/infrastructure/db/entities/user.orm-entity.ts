@@ -51,6 +51,9 @@ export class UserOrmEntity {
   @Column({ type: 'boolean', default: false })
   isTwoFactorEnabled: boolean;
 
+  @Column({ type: 'boolean', default: false })
+  isHasPassword: boolean;
+
   // --- Credentials ---
   @OneToMany(() => CredentialOrmEntity, (cred) => cred.user, { cascade: true })
   credentials: CredentialOrmEntity[];

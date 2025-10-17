@@ -6,6 +6,7 @@ import { UserRepositoryImpl } from '@/infrastructure/db/typeorm/user.repository.
 import { BcryptService } from '@/infrastructure/security/bcrypt.service';
 import { AuthModule } from '../auth/auth.module';
 import { CredentialOrmEntity } from '@/infrastructure/db/entities/credential.orm-entity';
+import { UserService } from './user.service';
 
 @Module({
   imports: [
@@ -15,11 +16,12 @@ import { CredentialOrmEntity } from '@/infrastructure/db/entities/credential.orm
   controllers: [UserController],
   providers: [
     BcryptService,
+    UserService,
     {
       provide: 'IUserRepository',
       useClass: UserRepositoryImpl,
     },
   ],
-  exports: ['IUserRepository'],
+  exports: ['IUserRepository', UserService],
 })
 export class UserModule {}

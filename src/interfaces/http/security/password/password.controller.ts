@@ -33,6 +33,15 @@ export class PasswordController {
   }
 
   @UseGuards(JwtAuthGuard)
+  @Patch('set')
+  @ApiBearerAuth()
+  @ApiBody({ type: ChangePasswordDto })
+  @ApiOkResponse({ description: 'Password successfully changed' })
+  async setPassword(@Req() req, @Body() dto: { password: string }) {
+    await this.passwordService.setPassword(req.user.id, dto.password);
+    return { message: 'Set password successfully.' };
+  }
+
   @Patch('change')
   @ApiBearerAuth()
   @ApiBody({ type: ChangePasswordDto })

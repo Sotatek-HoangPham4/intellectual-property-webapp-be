@@ -9,6 +9,7 @@ import { SecurityModule } from './interfaces/http/security/security.module';
 import { WebAuthModule } from './interfaces/http/webauth/webauth.module';
 import { CredentialOrmEntity } from './infrastructure/db/entities/credential.orm-entity';
 import { SessionOrmEntity } from './infrastructure/db/entities/session.orm-entity';
+import { EmailModule } from './infrastructure/notification/email/email.module';
 
 @Module({
   imports: [

@@ -31,6 +31,12 @@ export class UserDataDto {
   @ApiProperty({ type: TokensDto })
   tokens: TokensDto;
 
+  @ApiProperty({ example: 'false' })
+  isHasPassword: boolean;
+
+  @ApiProperty({ example: 'false' })
+  isTwoFactorEnabled: boolean;
+
   constructor(user: any, tokens: TokensDto) {
     this.id = user.id;
     this.name = user.name;
@@ -39,5 +45,7 @@ export class UserDataDto {
     this.provider = user.provider ?? 'local';
     this.providerId = user.providerId ?? user.id;
     this.tokens = tokens;
+    this.isHasPassword = user.isHasPassword;
+    this.isTwoFactorEnabled = user.isTwoFactorEnabled;
   }
 }

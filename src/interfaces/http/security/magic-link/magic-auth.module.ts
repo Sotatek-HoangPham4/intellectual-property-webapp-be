@@ -11,9 +11,13 @@ import { VerifyMagicLinkUseCase } from '@/core/application/use-cases/security/ma
 import { EmailService } from '@/infrastructure/notification/email/email.service';
 import { UserRepositoryImpl } from '@/infrastructure/db/typeorm/user.repository.impl';
 import { UserOrmEntity } from '@/infrastructure/db/entities/user.orm-entity';
+import { EmailModule } from '@/infrastructure/notification/email/email.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([MagicLinkTokenOrmEntity, UserOrmEntity])],
+  imports: [
+    TypeOrmModule.forFeature([MagicLinkTokenOrmEntity, UserOrmEntity]),
+    EmailModule,
+  ],
   controllers: [MagicAuthController],
   providers: [
     MagicAuthService,
@@ -24,7 +28,6 @@ import { UserOrmEntity } from '@/infrastructure/db/entities/user.orm-entity';
     },
     RequestMagicLinkUseCase,
     VerifyMagicLinkUseCase,
-    EmailService,
     JwtTokenService,
   ],
 })

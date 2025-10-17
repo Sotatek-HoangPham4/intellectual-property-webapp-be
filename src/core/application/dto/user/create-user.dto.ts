@@ -14,4 +14,8 @@ export class CreateUserDto {
   @IsString()
   @MinLength(6)
   password: string;
+
+  @ApiProperty({ example: 'user' })
+  @IsString()
+  role: string;
 }

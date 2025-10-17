@@ -15,7 +15,7 @@ export class UserEntity {
     public resetTokenExpiresAt: Date | null = null,
     public twoFactorSecret: string | null = null,
     public isTwoFactorEnabled: boolean = false,
-
+    public isHasPassword: boolean = false,
     public credentials: CredentialOrmEntity[] = [],
   ) {}
 }

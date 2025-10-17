@@ -17,14 +17,22 @@ import { PasswordController } from '../security/password/password.controller';
 import { PasswordService } from '../security/password/password.service';
 import { SessionService } from '../security/session/session.service';
 import { SessionModule } from '../security/session/session.module';
+import { EmailModule } from '@/infrastructure/notification/email/email.module';
+import { OtpService } from './otp.service';
+import { CacheModule } from '@nestjs/cache-manager';
 
 @Module({
   imports: [
     ConfigModule,
+    EmailModule,
     SessionModule,
     JwtModule.register({}),
     TypeOrmModule.forFeature([UserOrmEntity]),
     PassportModule.register({ defaultStrategy: 'jwt' }),
+    CacheModule.register({
+      isGlobal: true, // 👉 nếu bạn muốn dùng CACHE_MANAGER ở nhiều module
+      ttl: 5 * 60 * 1000, // 5 phút (ms)
+    }),
   ],
   controllers: [AuthController, PasswordController, TwoFactorAuthController],
   providers: [
@@ -33,6 +41,7 @@ import { SessionModule } from '../security/session/session.module';
     PasswordService,
     TwoFactorAuthService,
     BcryptService,
+    OtpService,
     GoogleStrategy,
     FacebookStrategy,
     {
@@ -41,6 +50,6 @@ import { SessionModule } from '../security/session/session.module';
     },
     JwtStrategy,
   ],
-  exports: [AuthService],
+  exports: [AuthService, BcryptService],
 })
 export class AuthModule {}

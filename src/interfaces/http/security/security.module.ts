@@ -19,9 +19,12 @@ import { TokenModule } from './token/token.module';
 import { MagicAuthModule } from './magic-link/magic-auth.module';
 import { SessionModule } from './session/session.module';
 
+import { EmailModule } from '@/infrastructure/notification/email/email.module';
+
 @Module({
   imports: [
     ConfigModule,
+    EmailModule,
     PassportModule.register({ defaultStrategy: 'jwt' }),
     JwtModule.register({}),
     TypeOrmModule.forFeature([UserOrmEntity]),

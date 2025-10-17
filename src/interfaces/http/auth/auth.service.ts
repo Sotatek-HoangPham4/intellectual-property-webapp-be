@@ -21,6 +21,8 @@ import { UserDataDto } from '../../../core/application/dto/user/user.dto';
 import { randomUUID } from 'crypto';
 import { hashToken } from '@/shared/utils/hash-token';
 import { SessionService } from '../security/session/session.service';
+import { OtpService } from './otp.service';
+import { compare } from 'bcrypt';
 
 @Injectable()
 export class AuthService {
@@ -30,8 +32,85 @@ export class AuthService {
     private readonly jwtService: JwtService,
     private readonly bcryptService: BcryptService,
     private readonly config: ConfigService,
+    private readonly otpService: OtpService,
     private readonly sessionService: SessionService,
   ) {}
+
+  async sendRegistrationOtp(email: string) {
+    return this.otpService.sendOtp(email);
+  }
+
+  async verifyPassword(userId: string, password: string) {
+    const user = await this.userRepo.findById(userId);
+    if (!user) throw new UnauthorizedException('User not found');
+
+    const match = await compare(password, user.password!);
+    if (!match) throw new UnauthorizedException('Incorrect password');
+  }
+
+  // async verifyEmailOTP(userId: string, code: string) {
+  //   const valid = await this.otpService.verifyEmailOTP(userId, code);
+  //   if (!valid) throw new UnauthorizedException('Invalid or expired email OTP');
+  // }
+
+  // async verifyPhoneOTP(userId: string, code: string) {
+  //   const valid = await this.otpService.verifyPhoneOTP(userId, code);
+  //   if (!valid) throw new UnauthorizedException('Invalid or expired phone OTP');
+  // }
+
+  // async verifyTOTP(userId: string, code: string) {
+  //   const valid = await this.totpService.verifyCode(userId, code);
+  //   if (!valid) throw new UnauthorizedException('Invalid TOTP');
+  // }
+
+  async verifyOtpAndRegister(
+    email: string,
+    password: string,
+    code: string,
+  ): Promise<UserDataDto> {
+    const verified = await this.otpService.verifyOtp(email, code);
+    if (!verified) throw new BadRequestException('Invalid OTP');
+
+    if (await this.userRepo.findByEmail(email)) {
+      throw new ConflictException('Email already registered');
+    }
+
+    const hashed = await this.bcryptService.hash(password);
+    const userId = uuidv4();
+    const user = new UserEntity(
+      userId,
+      '',
+      email,
+      hashed,
+      null,
+      'local',
+      null,
+      'user',
+    );
+
+    const created = await this.userRepo.create(user);
+    const tokens = await this.getTokens(
+      created.id,
+      created.email,
+      created.role,
+    );
+    await this.userRepo.setCurrentRefreshToken(
+      created.id,
+      await this.bcryptService.hash(tokens.refreshToken),
+    );
+
+    await this.sessionService.createSessionForLogin({
+      userId: created.id,
+      refreshToken: tokens.refreshToken,
+      ip: '127.0.0.1',
+      userAgent: 'Postman',
+    });
+
+    return new UserDataDto(
+      created,
+      new TokensDto(tokens.accessToken, tokens.refreshToken),
+    );
+  }
 
   private async getTokens(userId: string, email: string, role: string) {
     const payload = { sub: userId, email, role };
@@ -61,11 +140,7 @@ export class AuthService {
     return user;
   }
 
-  async register(
-    name: string,
-    email: string,
-    password: string,
-  ): Promise<UserDataDto> {
+  async register(email: string, password: string): Promise<UserDataDto> {
     if (await this.userRepo.findByEmail(email)) {
       throw new ConflictException('Email already registered');
     }
@@ -74,7 +149,7 @@ export class AuthService {
     const userId = uuidv4();
     const user = new UserEntity(
       userId,
-      name,
+      '',
       email,
       hashed,
       null,
@@ -102,6 +177,7 @@ export class AuthService {
 
   async login(email: string, password: string) {
     const user = await this.userRepo.findByEmail(email);
+    console.log('user', user);
     if (!user) throw new UnauthorizedException('User does not exist');
 
     const pwMatches = await this.bcryptService.compare(
@@ -124,14 +200,7 @@ export class AuthService {
 
     return {
       ...tokens,
-      user: {
-        id: user.id,
-        name: user.name,
-        email: user.email,
-        provider: user.provider,
-        providerId: user.providerId,
-        avatar: user.avatar,
-      },
+      user,
     };
   }
 

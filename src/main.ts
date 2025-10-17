@@ -7,7 +7,9 @@ import { ResponseInterceptor } from './shared/interceptors/response.interceptor'
 import { GlobalExceptionFilter } from './shared/filters/global-exception.filter';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create(AppModule, {
+    logger: ['log', 'error', 'warn', 'debug', 'verbose'],
+  });
 
   // 🔧 Set global prefix
   app.setGlobalPrefix('api/v1');
@@ -30,6 +32,14 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, swaggerConfig);
   SwaggerModule.setup('api/v1/docs', app, document, {
     swaggerOptions: { persistAuthorization: true },
+  });
+
+  // Enable CORS for all origins
+  app.enableCors({
+    origin: true,
+    credentials: true,
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS', // ✅ Add OPTIONS
+    allowedHeaders: 'Content-Type, Authorization',
   });
 
   app.useGlobalInterceptors(new ResponseInterceptor());

@@ -92,7 +92,14 @@ export class UserRepositoryImpl implements IUserRepository {
   }
 
   async updatePassword(userId: string, hashedPassword: string) {
-    await this.repo.update(userId, { password: hashedPassword });
+    await this.repo.update(userId, {
+      password: hashedPassword,
+      isHasPassword: true,
+    });
+  }
+
+  async updateEmail(userId: string, newEmail: string) {
+    await this.repo.update(userId, { email: newEmail });
   }
 
   async clearResetToken(userId: string) {

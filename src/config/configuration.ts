@@ -13,4 +13,8 @@ export default () => ({
     accessTokenExpiration: process.env.JWT_ACCESS_TOKEN_EXPIRATION || '900s',
     refreshTokenExpiration: process.env.JWT_REFRESH_TOKEN_EXPIRATION || '7d',
   },
+  resend: {
+    apiKey: process.env.RESEND_API_KEY,
+    from: process.env.RESEND_FROM_EMAIL || 'no-reply@example.com',
+  },
 });

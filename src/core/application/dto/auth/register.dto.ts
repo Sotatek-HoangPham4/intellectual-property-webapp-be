@@ -5,13 +5,6 @@ import { UserDataDto } from '../user/user.dto';
 
 export class RegisterReqDto {
   @ApiProperty({
-    example: 'Alice',
-    description: 'The name of the new user',
-  })
-  @IsNotEmpty()
-  name: string;
-
-  @ApiProperty({
     example: 'alice@example.com',
     description: 'Valid email address of the user',
   })
